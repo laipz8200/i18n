@@ -27,7 +27,7 @@ func TestLang(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Lang(tt.args.language)
 			want := NewI18n()
-			want.language = tt.want
+			want.SetLanguage(tt.want)
 			assert.Equal(t, want, got)
 		})
 	}

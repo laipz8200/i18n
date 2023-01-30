@@ -1,27 +1,22 @@
 package i18n
 
 import (
-	"log"
+	"github.com/laipz8200/i18n/pkg/i18n"
 )
 
-const DEFAULT_DIR = "i18n"
-
-var std *i18n
+var std *i18n.I18n
 
 func init() {
 	std = NewI18n()
 }
 
-func Lang(language string) *i18n {
+func Lang(language string) *i18n.I18n {
 	return std.Lang(language)
 }
 
 // NewI18n
-func NewI18n() *i18n {
-	return &i18n{
-		dir:    DEFAULT_DIR,
-		logger: log.Default(),
-	}
+func NewI18n() *i18n.I18n {
+	return i18n.NewI18n()
 }
 
 // Sprintf
@@ -32,4 +27,9 @@ func Sprintf(format string, a ...any) string {
 // Sprintln
 func Sprintln(a ...any) string {
 	return Sprintf("%v\n", a...)
+}
+
+// SetLanguage
+func SetLanguage(language string) {
+	std.SetLanguage(language)
 }

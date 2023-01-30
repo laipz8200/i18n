@@ -31,7 +31,7 @@ func Test_i18n_Sprintf(t *testing.T) {
 			name: "case 1",
 			fields: fields{
 				language: "",
-				dir:      "example/i18n",
+				dir:      "fixtures/i18n",
 				logger:   &mockLogger{},
 			},
 			args:       args{format: "%s", a: []any{"hello, world!"}, lang: "zh-cns"},
@@ -42,7 +42,7 @@ func Test_i18n_Sprintf(t *testing.T) {
 			name: "format number",
 			fields: fields{
 				language: "",
-				dir:      "example/i18n",
+				dir:      "fixtures/i18n",
 				logger:   &mockLogger{},
 			},
 			args:       args{format: "found %d errors", a: []any{20}, lang: "zh-cns"},
@@ -53,7 +53,7 @@ func Test_i18n_Sprintf(t *testing.T) {
 			name: "format string",
 			fields: fields{
 				language: "",
-				dir:      "example/i18n",
+				dir:      "fixtures/i18n",
 				logger:   &mockLogger{},
 			},
 			args:       args{format: "hello, %s", a: []any{"xiaoming"}, lang: "zh-cns"},
@@ -75,7 +75,7 @@ func Test_i18n_Sprintf(t *testing.T) {
 			name: "invalid file",
 			fields: fields{
 				language: "",
-				dir:      "example/wrong",
+				dir:      "fixtures/wrong",
 				logger:   &mockLogger{},
 			},
 			args:       args{},
@@ -85,7 +85,7 @@ func Test_i18n_Sprintf(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			i := &i18n{
+			i := &I18n{
 				language: tt.fields.language,
 				textMap:  tt.fields.textMap,
 				dir:      tt.fields.dir,
@@ -110,7 +110,7 @@ func Test_i18n_copy(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *i18n
+		want   *I18n
 	}{
 		{
 			name: "test copy",
@@ -125,7 +125,7 @@ func Test_i18n_copy(t *testing.T) {
 				dir:    "some dir",
 				logger: &log.Logger{},
 			},
-			want: &i18n{
+			want: &I18n{
 				language: "default language",
 				textMap: map[string]map[string]string{
 					"language 1": {
@@ -140,7 +140,7 @@ func Test_i18n_copy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			i := &i18n{
+			i := &I18n{
 				language: tt.fields.language,
 				textMap:  tt.fields.textMap,
 				dir:      tt.fields.dir,
@@ -173,7 +173,7 @@ func Test_i18n_Sprintln(t *testing.T) {
 		{
 			name: "case 1",
 			fields: fields{
-				dir: "example/i18n",
+				dir: "fixtures/i18n",
 			},
 			args: args{
 				a:    []any{"hello, world!"},
@@ -184,7 +184,7 @@ func Test_i18n_Sprintln(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			i := &i18n{
+			i := &I18n{
 				language: tt.fields.language,
 				textMap:  tt.fields.textMap,
 				dir:      tt.fields.dir,
@@ -192,6 +192,74 @@ func Test_i18n_Sprintln(t *testing.T) {
 			}
 			if got := i.Lang(tt.args.lang).Sprintln(tt.args.a...); got != tt.want {
 				t.Errorf("i18n.Sprintln() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestI18n_SetLanguage(t *testing.T) {
+	type fields struct {
+		language string
+		textMap  map[string]map[string]string
+		dir      string
+		logger   Logger
+	}
+	type args struct {
+		language string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name:   "case 1",
+			fields: fields{},
+			args: args{
+				language: "zh-cn",
+			},
+		},
+		{
+			name:   "case 2",
+			fields: fields{},
+			args: args{
+				language: "en-us",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &I18n{
+				language: tt.fields.language,
+				textMap:  tt.fields.textMap,
+				dir:      tt.fields.dir,
+				logger:   tt.fields.logger,
+			}
+			i.SetLanguage(tt.args.language)
+			assert.Equal(t, tt.args.language, i.language)
+		})
+	}
+}
+
+func TestNewI18n(t *testing.T) {
+	tests := []struct {
+		name string
+		want *I18n
+	}{
+		{
+			name: "case 1",
+			want: &I18n{
+				language: "",
+				textMap:  nil,
+				dir:      "i18n",
+				logger:   log.Default(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewI18n(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewI18n() = %v, want %v", got, tt.want)
 			}
 		})
 	}

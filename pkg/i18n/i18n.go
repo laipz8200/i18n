@@ -2,20 +2,23 @@ package i18n
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-type i18n struct {
+const DEFAULT_DIR = "i18n"
+
+type I18n struct {
 	language string
 	textMap  map[string]map[string]string
 	dir      string
 	logger   Logger
 }
 
-func (i *i18n) loadFile() {
+func (i *I18n) loadFile() {
 	i.textMap = map[string]map[string]string{}
 
 	files, err := os.ReadDir(i.dir)
@@ -45,8 +48,8 @@ func (i *i18n) loadFile() {
 	}
 }
 
-func (i *i18n) copy() *i18n {
-	return &i18n{
+func (i *I18n) copy() *I18n {
+	return &I18n{
 		language: i.language,
 		textMap:  i.textMap,
 		dir:      i.dir,
@@ -54,13 +57,15 @@ func (i *i18n) copy() *i18n {
 	}
 }
 
-func (i *i18n) Lang(language string) *i18n {
+// Lang
+func (i *I18n) Lang(language string) *I18n {
 	newObj := i.copy()
 	newObj.language = language
 	return newObj
 }
 
-func (i *i18n) Sprintf(format string, a ...any) string {
+// Sprintf
+func (i *I18n) Sprintf(format string, a ...any) string {
 	if i.textMap == nil {
 		i.loadFile()
 	}
@@ -81,6 +86,22 @@ func (i *i18n) Sprintf(format string, a ...any) string {
 	return fmt.Sprintf(format, objs...)
 }
 
-func (i *i18n) Sprintln(a ...any) string {
+// Sprintln
+func (i *I18n) Sprintln(a ...any) string {
 	return i.Sprintf("%v\n", a...)
+}
+
+// SetLanguage
+func (i *I18n) SetLanguage(language string) {
+	i.language = language
+}
+
+// NewI18n
+func NewI18n() *I18n {
+	return &I18n{
+		language: "",
+		textMap:  nil,
+		dir:      DEFAULT_DIR,
+		logger:   log.Default(),
+	}
 }
